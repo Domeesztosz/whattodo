@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Teendők | Ludiflex</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+  <style>
+    #task-list li {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid #ccc;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      color: white;
+    }
+    .delete-btn {
+      background-color: #ff4d4d;
+      border: none;
+      color: white;
+      padding: 5px 10px;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .delete-btn:hover {
+      background-color: #e60000;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrapper">
+    <div class="login_box">
+      <div class="login-header">
+        <span>Teendőim</span>
+      </div>
+
+      <form id="todo-form">
+        <input type="date" id="date" required>
+        <input type="text" id="task" placeholder="Teendő..." required>
+        <button type="submit" class="input-submit">Hozzáadás</button>
+      </form>
+
+      <ul id="task-list" style="margin-top: 20px;"></ul>
+    </div>
+  </div>
+
+  <script>
+    const form = document.getElementById('todo-form');
+    const taskList = document.getElementById('task-list');
+
+    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+
+    function renderTodos() {
+      taskList.innerHTML = '';
+      todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <span>${todo.date}: ${todo.text}</span>
+          <button class="delete-btn" data-index="${index}">Törlés</button>
+        `;
+        taskList.appendChild(li);
+      });
+
+      // Gombok eseménykezelése
+      document.querySelectorAll('.delete-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const index = e.target.getAttribute('data-index');
+          todos.splice(index, 1);
+          localStorage.setItem('todos', JSON.stringify(todos));
+          renderTodos();
+        });
+      });
+    }
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const date = document.getElementById('date').value;
+      const task = document.getElementById('task').value;
+
+      todos.push({ date, text: task });
+      localStorage.setItem('todos', JSON.stringify(todos));
+
+      document.getElementById('task').value = '';
+      renderTodos();
+    });
+
+    renderTodos();
+  </script>
+</body>
+</html>

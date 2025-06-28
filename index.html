@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="HU">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Boxicons -->
+  <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+  <link rel="stylesheet" href="assets/css/style.css">
+  <title>Login | Ludiflex</title>
+</head>
+<body>
+<script>
+  document.querySelector('.input-submit').addEventListener('click', function (e) {
+    e.preventDefault();
+
+    const enteredUsername = document.getElementById('username').value;
+    const enteredPassword = document.getElementById('password').value;
+
+    const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+
+    if (!storedUser) {
+      alert('Nincs regisztrált felhasználó!');
+      return;
+    }
+
+    if (enteredUsername === storedUser.email && enteredPassword === storedUser.password) {
+      alert('Sikeres bejelentkezés!');
+      window.location.href = 'todo.html'; // Ide visz tovább
+    } else {
+      alert('Hibás e-mail vagy jelszó!');
+    }
+  });
+</script>
+
+    <div class="wrapper">
+  <div class="login_box">
+    <div class="login-header">
+      <span>Login</span>
+    </div>
+
+    <div class="input_box horizontal">
+      <input type="text" id="username" class="input-field" required>
+      <label for="username">Username</label>
+      <i class="bx bx-user icon"></i>
+    </div>
+
+    <div class="input_box horizontal">
+      <input type="password" id="password" class="input-field" required>
+      <label for="password">Password</label>
+      <i class="bx bx-lock-alt icon"></i>
+    </div>
+
+   <div class="remember-forgot">
+  <label for="remember">
+    <input type="checkbox" id="remember">
+    Remember me
+  </label>
+  <div class="forgot">
+    <a href="#">Forgot password?</a>
+  </div>
+</div>
+
+<div class="input_box">
+  <input type="submit" class="input-submit" value="Login">
+</div>
+
+<div class="register">
+  <span>Don't have an account? <a href="register.html">Register</a></span>
+</div>
+
+<!-- a login gombod után közvetlenül -->
+<script>
+  document.querySelector(".input-submit").addEventListener("click", function(e) {
+    e.preventDefault();
+    // itt történhetne backend hitelesítés, de most átirányítunk
+    window.location.href = "dashboard.html";
+  });
+</script>
+
+
+
+
+
+</body>

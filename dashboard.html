@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Napi Teendők</title>
+  <link rel="stylesheet" href="assets/css/dashboard.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Napi Teendők</h1>
+
+    <label for="date-picker">Válassz napot:</label>
+    <input type="date" id="date-picker" />
+
+    <form id="todo-form">
+      <input type="text" id="todo-input" placeholder="Írd be a teendőt..." required />
+      <button type="submit">Hozzáadás</button>
+    </form>
+
+    <ul id="todo-list"></ul>
+  </div>
+
+  <script>
+    const datePicker = document.getElementById('date-picker');
+    const todoForm = document.getElementById('todo-form');
+    const todoInput = document.getElementById('todo-input');
+    const todoList = document.getElementById('todo-list');
+
+    // Alapértelmezett: mai nap
+    const today = new Date().toISOString().split('T')[0];
+    datePicker.value = today;
+
+    // Tárolt teendők betöltése egy napra
+    function loadTodos(date) {
+      todoList.innerHTML = '';
+      const todos = JSON.parse(localStorage.getItem('todos-' + date)) || [];
+
+      todos.forEach((todo, index) => {
+        const li = document.createElement('li');
+        li.innerHTML = `
+          <input type="checkbox" ${todo.done ? 'checked' : ''} data-index="${index}" />
+          <span style="${todo.done ? 'text-decoration: line-through;' : ''}">${todo.text}</span>
+          <button class="delete" data-index="${index}">🗑️</button>
+        `;
+
+        todoList.appendChild(li);
+      });
+    }
+
+    // Teendő mentése adott dátumra
+    function saveTodos(date) {
+      const items = [];
+      todoList.querySelectorAll('li').forEach((li, i) => {
+        const text = li.querySelector('span').textContent;
+        const done = li.querySelector('input[type="checkbox"]').checked;
+        items.push({ text, done });
+      });
+      localStorage.setItem('todos-' + date, JSON.stringify(items));
+    }
+
+    // Hozzáadás
+    todoForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      const text = todoInput.value.trim();
+      if (!text) return;
+
+      const date = datePicker.value;
+      const todos = JSON.parse(localStorage.getItem('todos-' + date)) || [];
+      todos.push({ text, done: false });
+      localStorage.setItem('todos-' + date, JSON.stringify(todos));
+
+      todoInput.value = '';
+      loadTodos(date);
+    });
+
+    // Törlés és pipálás
+    todoList.addEventListener('click', function(e) {
+      const date = datePicker.value;
+      const todos = JSON.parse(localStorage.getItem('todos-' + date)) || [];
+
+      if (e.target.classList.contains('delete')) {
+        const index = e.target.dataset.index;
+        todos.splice(index, 1);
+        localStorage.setItem('todos-' + date, JSON.stringify(todos));
+        loadTodos(date);
+      }
+
+      if (e.target.type === 'checkbox') {
+        const index = e.target.dataset.index;
+        todos[index].done = e.target.checked;
+        localStorage.setItem('todos-' + date, JSON.stringify(todos));
+        loadTodos(date);
+      }
+    });
+
+    // Dátum változása
+    datePicker.addEventListener('change', () => {
+      loadTodos(datePicker.value);
+    });
+
+    // Alapértelmezett betöltés
+    loadTodos(today);
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="hu">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Register | Ludiflex</title>
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <div class="wrapper">
+    <div class="login_box">
+      <div class="login-header">
+        <span>Register</span>
+      </div>
+
+      <form id="register-form">
+        <div class="input_box">
+          <input type="email" id="email" class="input-field" required>
+          <label for="email">Email</label>
+          <i class='bx bx-envelope icon'></i>
+        </div>
+
+        <div class="input_box">
+          <input type="password" id="password" class="input-field" required>
+          <label for="password">Password</label>
+          <i class='bx bx-lock-alt icon'></i>
+        </div>
+
+        <div class="input_box">
+          <input type="submit" class="input-submit" value="Register">
+        </div>
+      </form>
+
+      <div class="register">
+        <span>Already have an account? <a href="index.html">Login</a></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('register-form').addEventListener('submit', function(e) {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+
+      // Itt történhetne backend regisztráció is
+      localStorage.setItem('registeredUser', JSON.stringify({ email, password }));
+
+      alert('Sikeres regisztráció!');
+      window.location.href = 'index.html'; // vissza a login oldalra
+    });
+  </script>
+</body>
+</html>
