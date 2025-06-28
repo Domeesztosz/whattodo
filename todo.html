@@ -51,7 +51,9 @@
     const form = document.getElementById('todo-form');
     const taskList = document.getElementById('task-list');
 
-    let todos = JSON.parse(localStorage.getItem('todos')) || [];
+    const username = localStorage.getItem('loggedInUser');
+    localStorage.setItem(`todos_${username}`, JSON.stringify(todoLista));
+
 
     function renderTodos() {
       taskList.innerHTML = '';
@@ -81,7 +83,9 @@
       const task = document.getElementById('task').value;
 
       todos.push({ date, text: task });
-      localStorage.setItem('todos', JSON.stringify(todos));
+      const username = localStorage.getItem('loggedInUser');
+      const todos = JSON.parse(localStorage.getItem(`todos_${username}`)) || [];
+
 
       document.getElementById('task').value = '';
       renderTodos();
