@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Register | Ludiflex</title>
   <link rel="stylesheet" href="style.css" />
-  <!-- Boxicons csak akkor kell, ha az ikonok is megjelennek -->
   <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
@@ -15,6 +14,7 @@
         <span>Register</span>
       </div>
 
+      <!-- FONTOS: form kap egy ID-t -->
       <form id="register-form">
         <div class="input_box">
           <input type="email" id="email" class="input-field" required>
@@ -29,7 +29,7 @@
         </div>
 
         <div class="input_box">
-          <input type="submit" class="input-submit" value="Register">
+          <button type="submit" class="input-submit">Register</button>
         </div>
       </form>
 
@@ -40,16 +40,22 @@
   </div>
 
   <script>
+    // FONTOS: helyes ID-t használunk, és a gomb típusa: "submit"
     document.getElementById('register-form').addEventListener('submit', function (e) {
       e.preventDefault();
 
-      const email = document.getElementById('email').value;
+      const email = document.getElementById('email').value.trim();
       const password = document.getElementById('password').value;
+
+      if (!email || !password) {
+        alert("Kérlek, töltsd ki az összes mezőt!");
+        return;
+      }
 
       const users = JSON.parse(localStorage.getItem('users')) || {};
 
       if (users[email]) {
-        alert("Ez az e-mail már regisztrálva van!");
+        alert("Ez az e-mail cím már regisztrálva van!");
       } else {
         users[email] = { password };
         localStorage.setItem('users', JSON.stringify(users));
