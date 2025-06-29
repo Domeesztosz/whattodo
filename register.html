@@ -38,18 +38,24 @@
   </div>
 
   <script>
-    document.getElementById('register-form').addEventListener('submit', function(e) {
-      e.preventDefault();
+  document.querySelector('.input-submit').addEventListener('click', function (e) {
+    e.preventDefault();
 
-      const email = document.getElementById('email').value;
-      const password = document.getElementById('password').value;
+    const email = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
 
-      // Itt történhetne backend regisztráció is
-      localStorage.setItem('registeredUser', JSON.stringify({ email, password }));
+    const users = JSON.parse(localStorage.getItem('users')) || {};
 
-      alert('Sikeres regisztráció!');
-      window.location.href = 'index.html'; // vissza a login oldalra
-    });
-  </script>
+    if (users[email]) {
+      alert("Ez az e-mail már foglalt!");
+    } else {
+      users[email] = { password };
+      localStorage.setItem('users', JSON.stringify(users));
+      alert("Sikeres regisztráció!");
+      window.location.href = "login.html";
+    }
+  });
+</script>
+
 </body>
 </html>

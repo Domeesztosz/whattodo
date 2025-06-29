@@ -81,84 +81,97 @@
     <ul id="task-list"></ul>
   </div>
 
-  <script>
-    const loggedInUser = localStorage.getItem('loggedInUser');
-    const dateInput = document.getElementById('task-date');
-    const taskInput = document.getElementById('task-text');
-    const taskList = document.getElementById('task-list');
-    const usernameTitle = document.getElementById('username-title');
+ <script>
+  const loggedInUser = localStorage.getItem('loggedInUser');
+  const dateInput = document.getElementById('task-date');
+  const taskInput = document.getElementById('task-text');
+  const taskList = document.getElementById('task-list');
+  const usernameTitle = document.getElementById('username-title');
 
-    if (!loggedInUser) {
-      alert('Nem vagy bejelentkezve!');
-      window.location.href = 'login.html';
-    } else {
-      usernameTitle.textContent = `Üdv, ${loggedInUser}!`;
+  if (!loggedInUser) {
+    alert('Nem vagy bejelentkezve!');
+    window.location.href = 'login.html';
+  } else {
+    usernameTitle.textContent = `Üdv, ${loggedInUser}!`;
+  }
+
+  // Betöltéskor mutatja az adott nap teendőit
+  window.onload = () => {
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
+    displayTasks();
+  };
+
+  // Dátumváltáskor frissíti a listát
+  dateInput.addEventListener('change', displayTasks);
+
+  function getTasks() {
+    const todosKey = `todos_${loggedInUser}`;
+    const stored = localStorage.getItem(todosKey);
+    return stored ? JSON.parse(stored) : {};
+  }
+
+  function saveTasks(data) {
+    const todosKey = `todos_${loggedInUser}`;
+    localStorage.setItem(todosKey, JSON.stringify(data));
+  }
+
+  function addTask() {
+    const date = dateInput.value;
+    const text = taskInput.value.trim();
+
+    if (!date || !text) {
+      alert("Add meg a dátumot és a teendőt!");
+      return;
     }
 
-    dateInput.addEventListener('change', displayTasks);
-
-    function getTasks() {
-      const todosKey = `todos_${loggedInUser}`;
-      const stored = localStorage.getItem(todosKey);
-      return stored ? JSON.parse(stored) : {};
+    const tasks = getTasks();
+    if (!tasks[date]) {
+      tasks[date] = [];
     }
 
-    function saveTasks(data) {
-      const todosKey = `todos_${loggedInUser}`;
-      localStorage.setItem(todosKey, JSON.stringify(data));
-    }
+    tasks[date].push(text);
+    saveTasks(tasks);
 
-    function addTask() {
-      const date = dateInput.value;
-      const text = taskInput.value.trim();
-      if (!date || !text) {
-        alert("Add meg a dátumot és a teendőt!");
-        return;
+    taskInput.value = '';
+    displayTasks();
+  }
+
+  function deleteTask(index) {
+    const date = dateInput.value;
+    const tasks = getTasks();
+
+    if (tasks[date]) {
+      tasks[date].splice(index, 1);
+
+      if (tasks[date].length === 0) {
+        delete tasks[date];
       }
 
-      const tasks = getTasks();
-      if (!tasks[date]) {
-        tasks[date] = [];
-      }
-      tasks[date].push(text);
       saveTasks(tasks);
-      taskInput.value = '';
       displayTasks();
     }
+  }
 
-    function deleteTask(index) {
-      const date = dateInput.value;
-      const tasks = getTasks();
-      if (tasks[date]) {
-        tasks[date].splice(index, 1);
-        if (tasks[date].length === 0) {
-          delete tasks[date];
-        }
-        saveTasks(tasks);
-        displayTasks();
-      }
-    }
+  function displayTasks() {
+    const date = dateInput.value;
+    const tasks = getTasks()[date] || [];
 
-    function displayTasks() {
-      const date = dateInput.value;
-      const tasks = getTasks()[date] || [];
-      taskList.innerHTML = '';
-      tasks.forEach((task, index) => {
-        const li = document.createElement('li');
-        li.innerHTML = `
-          <span>${task}</span>
-          <button class="delete-btn" onclick="deleteTask(${index})">Törlés</button>
-        `;
-        taskList.appendChild(li);
-      });
-    }
+    taskList.innerHTML = '';
+    tasks.forEach((task, index) => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span>${task}</span>
+        <button class="delete-btn" onclick="deleteTask(${index})">Törlés</button>
+      `;
+      taskList.appendChild(li);
+    });
+  }
 
-    window.onload = () => {
-      const today = new Date().toISOString().split('T')[0];
-      dateInput.value = today;
-      displayTasks();
-    }
-  </script>
+  // Gombhoz rendelés
+  document.getElementById('add-btn').addEventListener('click', addTask);
+</script>
+
 
 </body>
 </html>

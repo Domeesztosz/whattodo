@@ -53,28 +53,39 @@
 
   <!-- Script a loginhoz -->
   <script>
-    document.querySelector('.input-submit').addEventListener('click', function (e) {
-      e.preventDefault();
+  // Automatikus bejelentkezés, ha Remember me aktív
+  window.onload = function () {
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    const rememberMe = localStorage.getItem('rememberMe');
+    if (loggedInUser && rememberMe === 'true') {
+      window.location.href = 'todo.html';
+    }
+  };
 
-      const enteredUsername = document.getElementById('username').value;
-      const enteredPassword = document.getElementById('password').value;
+  document.querySelector('.input-submit').addEventListener('click', function (e) {
+    e.preventDefault();
 
-      const storedUser = JSON.parse(localStorage.getItem('registeredUser'));
+    const enteredUsername = document.getElementById('username').value;
+    const enteredPassword = document.getElementById('password').value;
 
-      if (!storedUser) {
-        alert('Nincs regisztrált felhasználó!');
-        return;
-      }
+    const users = JSON.parse(localStorage.getItem('users')) || {};
 
-      if (enteredUsername === storedUser.email && enteredPassword === storedUser.password) {
-        alert('Sikeres bejelentkezés!');
-        localStorage.setItem('loggedInUser', enteredUsername); // 🌟 Itt mentjük a bejelentkezett felhasználót
-        window.location.href = 'todo.html';
+    if (users[enteredUsername] && users[enteredUsername].password === enteredPassword) {
+      localStorage.setItem('loggedInUser', enteredUsername);
+
+      if (document.getElementById('remember').checked) {
+        localStorage.setItem('rememberMe', 'true');
       } else {
-        alert('Hibás e-mail vagy jelszó!');
+        localStorage.removeItem('rememberMe');
       }
-    });
-  </script>
+
+      window.location.href = 'todo.html';
+    } else {
+      alert('Hibás név vagy jelszó!');
+    }
+  });
+</script>
+
 
 </body>
 </html>
