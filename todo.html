@@ -1,97 +1,164 @@
 <!DOCTYPE html>
 <html lang="hu">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Teendők | Ludiflex</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Teendők naptárral</title>
+  <link rel="stylesheet" href="style.css">
   <style>
-    #task-list li {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid #ccc;
-      padding: 10px;
-      border-radius: 10px;
-      margin-bottom: 10px;
-      color: white;
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
     }
-    .delete-btn {
-      background-color: #ff4d4d;
-      border: none;
+    h1, h2 {
+      text-align: center;
+    }
+    .container {
+      max-width: 600px;
+      margin: auto;
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input[type="date"], input[type="text"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      padding: 8px 12px;
+      background-color: #000;
       color: white;
-      padding: 5px 10px;
+      border: none;
       border-radius: 5px;
       cursor: pointer;
     }
+    button:hover {
+      background-color: #444;
+    }
+    .add-btn {
+      width: 100%;
+      margin-bottom: 20px;
+    }
+    ul {
+      list-style-type: none;
+      padding: 0;
+    }
+    li {
+      background: #eee;
+      margin-top: 5px;
+      padding: 10px;
+      border-radius: 5px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .delete-btn {
+      background-color: red;
+      padding: 5px 10px;
+      font-size: 14px;
+    }
     .delete-btn:hover {
-      background-color: #e60000;
+      background-color: darkred;
     }
   </style>
 </head>
 <body>
-  <div class="wrapper">
-    <div class="login_box">
-      <div class="login-header">
-        <span>Teendőim</span>
-      </div>
 
-      <form id="todo-form">
-        <input type="date" id="date" required>
-        <input type="text" id="task" placeholder="Teendő..." required>
-        <button type="submit" class="input-submit">Hozzáadás</button>
-      </form>
+  <div class="container">
+    <h1>Teendők naptár szerint</h1>
+    <h2 id="username-title"></h2>
 
-      <ul id="task-list" style="margin-top: 20px;"></ul>
-    </div>
+    <input type="date" id="task-date">
+    <input type="text" id="task-text" placeholder="Új teendő...">
+    <button class="add-btn" onclick="addTask()">Hozzáadás</button>
+
+    <h3>Teendők a kiválasztott napra:</h3>
+    <ul id="task-list"></ul>
   </div>
 
   <script>
-    const form = document.getElementById('todo-form');
+    const loggedInUser = localStorage.getItem('loggedInUser');
+    const dateInput = document.getElementById('task-date');
+    const taskInput = document.getElementById('task-text');
     const taskList = document.getElementById('task-list');
+    const usernameTitle = document.getElementById('username-title');
 
-    const username = localStorage.getItem('loggedInUser');
-    localStorage.setItem(`todos_${username}`, JSON.stringify(todoLista));
+    if (!loggedInUser) {
+      alert('Nem vagy bejelentkezve!');
+      window.location.href = 'login.html';
+    } else {
+      usernameTitle.textContent = `Üdv, ${loggedInUser}!`;
+    }
 
+    dateInput.addEventListener('change', displayTasks);
 
-    function renderTodos() {
+    function getTasks() {
+      const todosKey = `todos_${loggedInUser}`;
+      const stored = localStorage.getItem(todosKey);
+      return stored ? JSON.parse(stored) : {};
+    }
+
+    function saveTasks(data) {
+      const todosKey = `todos_${loggedInUser}`;
+      localStorage.setItem(todosKey, JSON.stringify(data));
+    }
+
+    function addTask() {
+      const date = dateInput.value;
+      const text = taskInput.value.trim();
+      if (!date || !text) {
+        alert("Add meg a dátumot és a teendőt!");
+        return;
+      }
+
+      const tasks = getTasks();
+      if (!tasks[date]) {
+        tasks[date] = [];
+      }
+      tasks[date].push(text);
+      saveTasks(tasks);
+      taskInput.value = '';
+      displayTasks();
+    }
+
+    function deleteTask(index) {
+      const date = dateInput.value;
+      const tasks = getTasks();
+      if (tasks[date]) {
+        tasks[date].splice(index, 1);
+        if (tasks[date].length === 0) {
+          delete tasks[date];
+        }
+        saveTasks(tasks);
+        displayTasks();
+      }
+    }
+
+    function displayTasks() {
+      const date = dateInput.value;
+      const tasks = getTasks()[date] || [];
       taskList.innerHTML = '';
-      todos.forEach((todo, index) => {
+      tasks.forEach((task, index) => {
         const li = document.createElement('li');
         li.innerHTML = `
-          <span>${todo.date}: ${todo.text}</span>
-          <button class="delete-btn" data-index="${index}">Törlés</button>
+          <span>${task}</span>
+          <button class="delete-btn" onclick="deleteTask(${index})">Törlés</button>
         `;
         taskList.appendChild(li);
       });
-
-      // Gombok eseménykezelése
-      document.querySelectorAll('.delete-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const index = e.target.getAttribute('data-index');
-          todos.splice(index, 1);
-          localStorage.setItem('todos', JSON.stringify(todos));
-          renderTodos();
-        });
-      });
     }
 
-    form.addEventListener('submit', (e) => {
-      e.preventDefault();
-      const date = document.getElementById('date').value;
-      const task = document.getElementById('task').value;
-
-      todos.push({ date, text: task });
-      const username = localStorage.getItem('loggedInUser');
-      const todos = JSON.parse(localStorage.getItem(`todos_${username}`)) || [];
-
-
-      document.getElementById('task').value = '';
-      renderTodos();
-    });
-
-    renderTodos();
+    window.onload = () => {
+      const today = new Date().toISOString().split('T')[0];
+      dateInput.value = today;
+      displayTasks();
+    }
   </script>
+
 </body>
 </html>
